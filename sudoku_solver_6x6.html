@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>6x6 Sudoku Solver</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        td {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid black;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>6x6 Sudoku Solver</h1>
+    <table>
+        <tbody id="sudoku-board">
+        </tbody>
+    </table>
+    <button id="solve-button">Solve</button>
+    <button id="clear-button">Clear</button>
+    <script>
+        const board = Array.from({ length: 6 }, () => Array(6).fill(0));
+        
+        const table = document.getElementById("sudoku-board");
+        const solveButton = document.getElementById("solve-button");
+        const clearButton = document.getElementById("clear-button");
+        
+        for (let i = 0; i < 6; i++) {
+            const row = document.createElement("tr");
+            for (let j = 0; j < 6; j++) {
+                const cell = document.createElement("td");
+                cell.setAttribute("contenteditable", "true");
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                row.appendChild(cell);
+            }
+            table.appendChild(row);
+        }
+        
+        solveButton.addEventListener("click", solveSudoku);
+        clearButton.addEventListener("click", clearBoard);
+        
+        function solveSudoku() {
+            readBoard();
+            if (solve(0, 0)) {
+                updateBoard();
+            } else {
+                alert("No solution exists for this Sudoku puzzle.");
+            }
+        }
+        
+        function readBoard() {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 6; j++) {
+                    const cell = table.rows[i].cells[j];
+                    const value = parseInt(cell.textContent) || 0;
+                    board[i][j] = value;
+                }
+            }
+        }
+        
+        function solve(row, col) {
+            if (row === 6) {
+                return true;
+            }
+            if (col === 6) {
+                return solve(row + 1, 0);
+            }
+            if (board[row][col] !== 0) {
+                return solve(row, col + 1);
+            }
+            
+            for (let num = 1; num <= 6; num++) {
+                if (isSafe(row, col, num)) {
+                    board[row][col] = num;
+                    if (solve(row, col + 1)) {
+                        return true;
+                    }
+                    board[row][col] = 0;
+                }
+            }
+            return false;
+        }
+        
+        function isSafe(row, col, num) {
+            return !usedInRow(row, num) && !usedInColumn(col, num);
+        }
+        
+        function usedInRow(row, num) {
+            for (let i = 0; i < 6; i++) {
+                if (board[row][i] === num) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function usedInColumn(col, num) {
+            for (let i = 0; i < 6; i++) {
+                if (board[i][col] === num) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        function updateBoard() {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 6; j++) {
+                    const cell = table.rows[i].cells[j];
+                    cell.textContent = board[i][j];
+                }
+            }
+        }
+        
+        function clearBoard() {
+            for (let i = 0; i < 6; i++) {
+                for (let j = 0; j < 6; j++) {
+                    const cell = table.rows[i].cells[j];
+                    cell.textContent = "";
+                    board[i][j] = 0;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
